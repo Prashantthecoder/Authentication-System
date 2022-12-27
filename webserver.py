@@ -19,7 +19,7 @@ mydb = mysql.connector.connect(
 )
 
 cursor = mydb.cursor()
-tasklist = []
+# tasklist = []
 
 
 
@@ -34,12 +34,17 @@ p = []
 tbl = '<thead><tr><th>File Name</th><th>Files</th></tr></thead>'
 p.append(tbl)
 
-s=[]
-z=[]
+ab = []
+# ac = []
 
-abc = []
+
+
+# print(s)
 class requestHandler(BaseHTTPRequestHandler):
+    
     def do_GET(self):
+        files = ' '.join(p)
+
         if self.path.endswith('/'):
             self.send_response(200)
             self.send_header('content-type', 'text/html')
@@ -51,49 +56,64 @@ class requestHandler(BaseHTTPRequestHandler):
                                 <h1>Account</h1>
                                 <h3><a href="/new">Login</a></h3>
                                 <h4><a href="/registration">Registration</a></h3>
-                                <a href= "/home/eigen/Desktop/PRACTICE/pythonserver/files/pan.jpeg" >Click Here </a>
-                                <a href= "www.google.com" >Click Here </a>
                             </body>
                        </html>"""
             self.wfile.write(output.encode())
+            
 
-        if self.path.endswith('/new'):
-            self.send_response(200)
-            self.send_header('content-type', 'text/html')
-            self.end_headers()
-            output = ''
-            output += '<html><body>'
-            output += '<h1>Account Login</h1>'
-            output += '<form method="POST" enctype="multipart/form-data" action="/new">'
-            output += '<input name="task" type="text" placeholder="Username">'
-            output += '<input name="pwd" type="password" placeholder="Password">'
-            output += "<input type='submit' value='submit'>"
-            output += '</form>'
-            output += '</body></html>'
-            self.wfile.write(output.encode())
-
+        elif self.path.endswith('/new'):
+                self.send_response(200)
+                self.send_header('content-type', 'text/html')
+                self.end_headers()
+                output = ''
+                output += '<html><body>'
+                output += '<h1>Account Login</h1>'
+                output += '<form method="POST" enctype="multipart/form-data" action="/new">'
+                output += '<input name="task" type="text" placeholder="Username">'
+                output += '<input name="pwd" type="password" placeholder="Password">'
+                output += "<input type='submit' value='submit'>"
+                output += '</form>'
+                output += '</body></html>'
+                self.wfile.write(output.encode())
+    
         if self.path.endswith('/login'):
-            self.send_response(202)
-            self.send_header('content-type', 'text/html')
-            self.end_headers()
-            output = ''
-            output += '<html><body>'
-            output += '<h1>Please Upload Your File Here</h1>'
-            output += '<form method="POST" enctype="multipart/form-data" action="/login">'
-            output += '<label for="fileid">File ID </label>'
-            output += '<input name="fileid" type="number" required><br><br>'
-            output += '<label for="filename">File Name </label>'
-            output += '<input name="filename" type="text" required><br><br>'
-            output += '<label for="uploadfile">Select Your File Here </label>'
-            output += '<input name="uploadfile" type="file" required><br><br>'
-            output += '<input type="submit" value= "Upload">'
-            output += '</form>'
+            global var1
+            var1 = ab[0]
+            global var2
+            var2 = ab[1]
+            cursor.execute('SELECT * FROM home_userpassword WHERE username={!r} AND password={!r}'.format(str(var1),str(var2)))
+            account = cursor.fetchone()
+            
+            if account == None:
+                print("Loginfailed")
+                self.send_response(301)
+                self.send_header('content-type', 'text/html')
+                self.send_header('Location', '/loginfailed')
+                self.end_headers()
+            else:
+                self.send_response(202)
+                self.send_header('content-type', 'text/html')
+                self.end_headers()
+                output = ''
+                output += '<html><body>'
+                output += '<h1>Please Upload Your File Here</h1>'
+                output += '<form method="POST" enctype="multipart/form-data" action="/login">'
+                output += '<label for="fileid">File ID </label>'
+                output += '<input name="fileid" type="number" required><br><br>'
+                output += '<label for="filename">File Name </label>'
+                output += '<input name="filename" type="text" required><br><br>'
+                output += '<label for="uploadfile">Select Your File Here </label>'
+                output += '<input name="uploadfile" type="file" required><br><br>'
+                output += '<input type="submit" value= "Upload">'
+                output += '</form>'
 
-            # output += '<form method="POST" enctype="multipart/form-data" action="/upload">'
-            # output += '<input type="submit" value= "View">'
-            # output += '</form>'
-            output += '</body></html>'
-            self.wfile.write(output.encode())
+                # output += '<form method="POST" enctype="multipart/form-data" action="/upload">'
+                # output += '<input type="submit" value= "View">'
+                # output += '</form>'
+                output += '</body></html>'
+                self.wfile.write(output.encode())
+
+            
 
         if self.path.endswith('/registration'):
             self.send_response(201)
@@ -112,25 +132,35 @@ class requestHandler(BaseHTTPRequestHandler):
 
 
         if self.path.endswith('/upload'):
-            self.send_response(203)
-            self.send_header('content-type', 'text/html')
-            self.end_headers()
+            cursor.execute('SELECT * FROM home_userpassword WHERE username={!r} AND password={!r}'.format(str(var1),str(var2)))
+            account = cursor.fetchone()
+            
+            if account == None:
+                print("Loginfailed")
+                self.send_response(301)
+                self.send_header('content-type', 'text/html')
+                self.send_header('Location', '/loginfailed')
+                self.end_headers()
+            else:
+                self.send_response(203)
+                self.send_header('content-type', 'text/html')
+                self.end_headers()
 
-            output = """<html>
-                        <body>
-                        <h1>Your Files Here </h1>
-                            <form method="POST" enctype="multipart/form-data" action="/upload">
-                                <table>
-                                    <tbody>
-                                        %s    
-                                    </tbody>
-                                </table> 
-                            </form>                                                      
-                        </body>
-                        </html>"""%(p)
-    
-            self.wfile.write(output.encode())
+                output = """<html>
+                            <body>
+                            <h1>Your Files Here </h1>
+                                <form method="POST" enctype="multipart/form-data" action="/upload">
+                                    <table>
+                                        <tbody>
+                                            %s    
+                                        </tbody>
+                                    </table> 
+                                </form>                                                      
+                            </body>
+                            </html>"""%(files)
         
+                self.wfile.write(output.encode())
+                
 
         # if self.path.endswith('/showtable'):
         #     self.send_response(202)
@@ -156,6 +186,7 @@ class requestHandler(BaseHTTPRequestHandler):
                         </html>"""
             self.wfile.write(output.encode())
 
+        
 
     def do_POST(self):
         if self.path.endswith('/new'):
@@ -170,16 +201,21 @@ class requestHandler(BaseHTTPRequestHandler):
                 global a
                 a = ' '.join(new_task)
                 print(a)
+                # ab.append(a)
+            
 
                 new_task1 = fields.get('pwd')
+                global b
                 b = ' '.join(new_task1)
                 print(b)
+                # ac.append(b)
 
                 cursor.execute('SELECT * FROM home_userpassword WHERE username=%s AND password=%s',(a,b))
                 account = cursor.fetchone()
+            
                 if account == None:
                     print("False")
-                    tasklist.append('False')
+                    # tasklist.append('False')
 
                     self.send_response(301)
                     self.send_header('content-type', 'text/html')
@@ -187,9 +223,10 @@ class requestHandler(BaseHTTPRequestHandler):
                     self.end_headers()
                 else:
                     print('True')
-                    tasklist.append('True')
+                    for items in account:
+                        ab.append(items)
                     print("Login Successfull...")
-
+                    # print(account)
                     self.send_response(301)
                     self.send_header('content-type', 'text/html')
                     self.send_header('Location', '/login')
@@ -323,8 +360,8 @@ class requestHandler(BaseHTTPRequestHandler):
                         # pra = fields.get('get1')
                         print(file1)
                         print(file2)
-                        s.append(file1)
-                        s.append(file2)
+                        # s.append(file1)
+                        # s.append(file2)
 
                     self.send_response(303)
                     self.send_header('content-type', 'text/html')
